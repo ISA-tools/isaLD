@@ -3,8 +3,7 @@
   "version": "0.1.0",
   "private": false,
   "scripts": {
-    "build": "npm-run-all --parallel build:**",
-    "build:functions": "netlify-lambda build src/lambda"
+    "build": "netlify-lambda build src/lambda"
   },
   "dependencies": {
     "axios": "^0.21.1"
