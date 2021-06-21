@@ -1,0 +1,17 @@
+{
+  "name": "isa-ld",
+  "version": "0.1.0",
+  "private": false,
+  "scripts": {
+    "build": "npm-run-all --parallel build:**",
+    "build:functions": "netlify-lambda build src/lambda"
+  },
+  "dependencies": {
+    "axios": "^0.21.1"
+  },
+  "devDependencies": {
+    "netlify-cli": "2.68.4",
+    "netlify-lambda": "^1.6.3"
+  },
+  "proxy": "http://localhost:9000/"
+}
