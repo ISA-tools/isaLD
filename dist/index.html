@@ -9,6 +9,9 @@
           integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x"
           crossorigin="anonymous"
     >
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+          integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p"
+          crossorigin="anonymous"/>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
     </style>
@@ -21,7 +24,7 @@
         html {
             font-size: 1.2rem;
         }
-        html *:not(pre) {
+        html *:not(pre):not(.fa):not(.fas):not(.fab) {
             font-family: 'Roboto', sans-serif !important;
         }
         h1, h2 {
@@ -42,6 +45,10 @@
             padding: 10px;
             border: 1px solid #ccc;
         }
+        pre#output {
+            height: 50vh;
+            overflow: scroll;
+        }
         form label {
             display: block;
         }
@@ -58,6 +65,25 @@
         form {
             border: 1px solid #ccc;
             border-top: 0;
+        }
+        .loader div {
+            display: block;
+            position: relative;
+            left: 0;
+            right: 0;
+            margin: auto;
+        }
+        .fa-copy {
+            position: relative;
+            top: 60px;
+            left: 94%;
+            font-size: 50px;
+            opacity: 0.2;
+            line-height: 0;
+            cursor: pointer;
+        }
+        .fa-copy:hover {
+            opacity: 1;
         }
     </style>
 </head>
@@ -122,7 +148,7 @@
                     <button type="button"
                             class="btn btn-primary"
                             @click="injectFromURL()"
-                            :disabled="!inputURL"
+                            :disabled="!inputURL || loading"
                             style="position: relative; top: -2px;"
                     >
                         Inject LD attributes
@@ -140,16 +166,23 @@
                     <button type="button"
                             class="btn btn-primary mt-2"
                             @click="injectFromInstance()"
-                            :disabled="!inputInstance"
+                            :disabled="!inputInstance || loading"
                             style="position: relative; top: -2px;"
                     >
                         Inject LD attributes
                     </button>
                 </form>
 
+                <div v-if="loading" class="loader mt-4">
+                    <div class="spinner-border" role="status">
+                    </div>
+                    <div style="text-align: center">Loading your content</div>
+                </div>
+
             </div>
-            <div class="col-12 mt-4" v-if="output">
-                <pre>{{output}}</pre>
+            <div class="col-12" v-if="output">
+                <i class="fas fa-copy" @click="copyToClipboard()"></i>
+                <pre id="output">{{output}}</pre>
             </div>
         </div>
     </div>
@@ -164,16 +197,20 @@
                 inputInstance: null,
                 formValid: false,
                 defaultURL: "https://raw.githubusercontent.com/ISA-tools/ISAdatasets/master/json/BII-S-3/BII-S-3.json",
-                currentTab: "URL"
+                currentTab: "URL",
+                loading: false,
             },
             methods: {
                 async injectFromURL(){
-                    await this.getData({url: this.inputURL})
+                    this.loading = true;
+                    await this.getData({url: this.inputURL});
                 },
                 async injectFromInstance(){
-                    await this.getData({instance: JSON.parse(this.inputInstance)})
+                    this.loading = true;
+                    await this.getData({instance: JSON.parse(this.inputInstance)});
                 },
                 async getData(data){
+                    this.output = null;
                     let apiURL = "https://isald.netlify.app/api/injectLD";
                     let xhr = new XMLHttpRequest();
                     xhr.open("POST", apiURL);
@@ -182,9 +219,14 @@
                     xhr.onreadystatechange = () => {
                         if (xhr.readyState === 4) {
                             this.output = JSON.stringify(JSON.parse(xhr.responseText).instance, null, 4);
+                            this.loading = false;
                         }
                     };
                     xhr.send(JSON.stringify(data));
+                },
+                async copyToClipboard() {
+                    await navigator.clipboard.writeText(this.output);
+                    alert('Your JSON has been correctly copied to the clipboard');
                 }
             }
         })
