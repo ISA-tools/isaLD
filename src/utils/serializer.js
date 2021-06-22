@@ -1,4 +1,4 @@
-import { network } from "schemas.js"
+import { network } from "./schemas.js"
 const axios = require('axios');
 
 export class ISASerializer {
