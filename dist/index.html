@@ -1,3 +1,193 @@
-<html>
-Hello
+<!doctype html>
+<html lang="en">
+<head>
+    <title>ISA-LD | Injection service for ISA JSON instances</title>
+    <meta charset='utf-8' />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x"
+          crossorigin="anonymous"
+    >
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4"
+            crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <style>
+        html {
+            font-size: 1.2rem;
+        }
+        html *:not(pre) {
+            font-family: 'Roboto', sans-serif !important;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        h2 {
+            font-size: 1.6rem;
+        }
+        h3 {
+            color: #198754;
+            text-decoration: underline;
+        }
+        hr {
+            border: 0;
+            border-top: 3px solid #198754;
+        }
+        pre {
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        form label {
+            display: block;
+        }
+        form .inputURL {
+            display: inline-block;
+            width: 84%;
+        }
+        form button {
+            display: inline-block;
+        }
+        ul.nav li {
+            cursor: pointer;
+        }
+        form {
+            border: 1px solid #ccc;
+            border-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-success text-white">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white" href="#">ISA-LD</a>
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
+    <div class="container">
+        <h1 class="pt-2"> Welcome to ISA-LD</h1>
+        <h2> A web service to inject LD attributes in ISA JSON instances</h2>
+        <hr>
+        <div id="vapp" class="row">
+            <div class="col-12">
+                <p>
+                    Using the ISA-lD API is very easy. All you need to do is to  POST a URL to an ISA instance or an ISA
+                    instance to <b class="text-success">https://isald.netlify.app/api/injectLD.</b> The response will contain
+                    the marked up JSON-LD in the "instance" attribute. <br>
+                    An example CURL request would be:
+                </p>
+                <pre>curl -X GET -k -i 'https://isald.netlify.app/api/injectLD' --data '{"url": "https://raw.githubusercontent.com/ISA-tools/ISAdatasets/master/json/BII-S-3/BII-S-3.json"}'</pre>
+
+                <h3 class="mt-4"> Try it out yourself:</h3>
+
+                <ul class="nav nav-tabs mt-4">
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           :class="{'active': currentTab === 'URL' }"
+                           @click="currentTab = 'URL'"
+                        >
+                            From URL
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           :class="{'active': currentTab === 'JSON' }"
+                           @click="currentTab = 'JSON'"
+                        >
+                            From JSON instance
+                        </a>
+                    </li>
+                </ul>
+
+                <form id="LDFromURL" v-if="currentTab === 'URL'" class="px-3 py-3">
+                    <label for="exampleFormControlInput1" class="form-label">Instance URL</label>
+                    <input type="text"
+                           class="form-control inputURL"
+                           id="exampleFormControlInput1"
+                           placeholder="https://raw.githubusercontent.com/ISA-tools/ISAdatasets/master/json/BII-S-3/BII-S-3.json"
+                           v-model="inputURL"
+                    >
+                    <button type="button"
+                            class="btn btn-primary"
+                            @click="injectFromURL()"
+                            :disabled="!inputURL"
+                            style="position: relative; top: -2px;"
+                    >
+                        Inject LD attributes
+                    </button>
+                </form>
+
+                <form id="LDFromJSON" v-if="currentTab === 'JSON'" class="px-3 py-3">
+                    <label for="exampleFormControlInput1" class="form-label">ISA JSON</label>
+                    <textarea class="form-control"
+                              id="exampleFormControlTextarea1"
+                              rows="6"
+                              v-model="inputInstance"
+                    >
+                    </textarea>
+                    <button type="button"
+                            class="btn btn-primary mt-2"
+                            @click="injectFromInstance()"
+                            :disabled="!inputInstance"
+                            style="position: relative; top: -2px;"
+                    >
+                        Inject LD attributes
+                    </button>
+                </form>
+
+            </div>
+            <div class="col-12 mt-4" v-if="output">
+                <pre>{{output}}</pre>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const vueApp = new Vue({
+            el: '#vapp',
+            data: {
+                output: null,
+                inputURL: null,
+                inputInstance: null,
+                formValid: false,
+                defaultURL: "https://raw.githubusercontent.com/ISA-tools/ISAdatasets/master/json/BII-S-3/BII-S-3.json",
+                currentTab: "URL"
+            },
+            methods: {
+                async injectFromURL(){
+                    await this.getData({url: this.inputURL})
+                },
+                async injectFromInstance(){
+                    await this.getData({instance: JSON.parse(this.inputInstance)})
+                },
+                async getData(data){
+                    let apiURL = "https://isald.netlify.app/api/injectLD";
+                    let xhr = new XMLHttpRequest();
+                    xhr.open("POST", apiURL);
+                    xhr.setRequestHeader("Content-Type", "application/json");
+                    xhr.setRequestHeader("Accept", "application/json");
+                    xhr.onreadystatechange = () => {
+                        if (xhr.readyState === 4) {
+                            this.output = JSON.stringify(JSON.parse(xhr.responseText).instance, null, 4);
+                        }
+                    };
+                    xhr.send(JSON.stringify(data));
+                }
+            }
+        })
+    </script>
+</body>
 </html>
