@@ -1,4 +1,4 @@
-import { ISASerializer } from "../serializer.js"
+import { ISASerializer } from "../utils/serializer.js"
 
 exports.handler = async (event) => {
     try {

@@ -1,4 +1,4 @@
-import { network } from "./schemas.js"
+import { network } from "schemas.js"
 const axios = require('axios');
 
 export class ISASerializer {
@@ -31,6 +31,10 @@ export class ISASerializer {
         })();
     }
 
+    /**
+     * Resolve the instance from the input URL
+     * @returns {Promise}
+     */
     async resolveInstance(){
         let response = await axios({
             method: "GET",
@@ -39,6 +43,14 @@ export class ISASerializer {
         this.instance = response.data;
     }
 
+    /**
+     * Inject the LD attributes in the given instance
+     * @param {String} schemaName: name of the schema to match the instance against
+     * @param {Object} output: the object onto which the injection should be done
+     * @param {Object} instance: the object from which the injection should be done
+     * @param {Null | string} reference: reference to a fake schema for attributes without $ref
+     * @returns {Object}: the json LD representation of the ISA JSON instance
+     */
     injectLD(schemaName, output, instance, reference){
         let props = this.schemas[schemaName];
         if (Object.keys(this.schemas[schemaName]).includes('properties')) {
@@ -109,10 +121,20 @@ export class ISASerializer {
         return output;
     }
 
+    /**
+     * Given a schema name, gets the corresponding context URL
+     * @param schemaName
+     * @returns {*}
+     */
     getContextURL(schemaName){
         return this.contexts[schemaName]
     }
 
+    /**
+     * Given a reference name, builds the corresponding context key to find in the context file.
+     * @param name
+     * @returns {string}
+     */
     getContextKey(name) {
         function capitalize(str) {
             return str.charAt(0).toUpperCase() + str.slice(1);
