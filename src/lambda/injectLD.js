@@ -23,7 +23,6 @@ exports.handler = async (event) => {
         }
         if (!Object.keys(input).includes('ontology')) input['ontology'] = 'obo';
         let instance = input['url'] || input['instance'];
-        console.log(typeof instance);
         let serializer = await new ISASerializer(instance, input['ontology']);
         return {
             statusCode: 200,
