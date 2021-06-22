@@ -14,9 +14,7 @@ exports.handler = async (event) => {
         let serializer = await new ISASerializer(instance, input['ontology']);
         return {
             statusCode: 200,
-            body: JSON.stringify({
-                data: serializer.output
-            })
+            body: JSON.stringify(serializer.output)
         }
     }
     catch(e){
