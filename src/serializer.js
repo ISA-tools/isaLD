@@ -3,19 +3,29 @@ const axios = require('axios');
 
 export class ISASerializer {
 
-    constructor(url, source) {
+    /**
+     *
+     * @param {String | Object} instance: an ISA JSON instance or URL to an ISA JSON instance
+     * @param source: the ontology to use
+     * @returns {ISASerializer|*|Promise<*>}
+     */
+    constructor(instance, source) {
         if (ISASerializer._instance){
             network.get_contexts(source);
             return ISASerializer._instance
         }
         ISASerializer._instance = this;
         network.get_contexts(source);
-        this.url = url;
         this.schemas = network.schemas;
         this.contexts = network.contexts;
+        this.instance = null;
         this.output = null;
         return (async () => {
-            await this.resolveInstance();
+            if (typeof(instance) === 'string') {
+                this.url = instance;
+                await this.resolveInstance();
+            }
+            else this.instance = instance;
             this.output = this.injectLD(network.mainSchemaName, {}, this.instance, null);
             return this;
         })();

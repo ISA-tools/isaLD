@@ -10,7 +10,8 @@ exports.handler = async (event) => {
             }
         }
         if (!Object.keys(input).includes('ontology')) input['ontology'] = 'obo';
-        let serializer = await new ISASerializer(input['url'], input['ontology']);
+        let instance = input['url'] || input['instance'];
+        let serializer = await new ISASerializer(instance, input['ontology']);
         return {
             statusCode: 200,
             body: JSON.stringify({
@@ -21,7 +22,7 @@ exports.handler = async (event) => {
     catch(e){
         return {
             statusCode: 400,
-            body: JSON.stringify({error: e})
+            body: JSON.stringify({error: e.message})
         }
     }
 };
