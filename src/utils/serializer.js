@@ -4,7 +4,7 @@ const axios = require('axios');
 export class ISASerializer {
 
     /**
-     *
+     * The ISA Serializer to inject the LD attributes. This is a soft singleton.
      * @param {String | Object} instance: an ISA JSON instance or URL to an ISA JSON instance
      * @param source: the ontology to use
      * @returns {ISASerializer|*|Promise<*>}

@@ -111,9 +111,13 @@
                 <p>
                     Using the ISA-LD API is very easy. All you need to do is to  POST a URL to an ISA instance or an ISA
                     instance to <b class="text-success">https://isald.netlify.app/api/injectLD.</b> The response will contain
-                    the marked up JSON-LD in the "instance" attribute. <br>
-                    An example CURL request would be:
+                    the marked up JSON-LD in the "instance" attribute. <br />
+                    This is a prototype and <b style="text-decoration: underline; text-decoration-style: double;">
+                    is not meant to be used in production</b>. We do not take any responsibility for misuse of
+                    the software. <br />
                 </p>
+
+                <h3 class="mb-2"> CURL Example:</h3>
                 <pre>curl -X POST -k -i 'https://isald.netlify.app/api/injectLD' --data '{"url": "https://raw.githubusercontent.com/ISA-tools/ISAdatasets/master/json/BII-S-3/BII-S-3.json"}'</pre>
 
                 <h3 class="mt-4"> Try it out yourself:</h3>
